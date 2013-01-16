@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+   <head>
+		<title>MathCityMap</title>
+		<link rel="shortcut icon" type="image/x-icon" href="http://mcm.studiumdigitale.uni-frankfurt.de/common/kompass.ico">
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+		<meta http-equiv="content-language" content="en" />
+		<meta name="author" content="Yves Kronenburg & Tim Rost" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<meta name="description" content="Geolokalisierte, mobile Content-Produktion" />
+		<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/" />
+		<meta name="DC.title" content="MCM - Math City Maps" />
+		<meta name="DC.subject" content="Google maps;jQuery;plugin;mobile;iphone;ipad;android;HTML5" />
+		<meta name="DC.description" content="MCM - Math City Maps" />
+		<meta name="DC.creator" content="Yves Kronenburg & Tim Rost" />
+		<meta name="DC.language" content="en" />
+
+		<link type="text/css" rel="stylesheet" href="css/jquery.mobile-1.2.0.min.css" />
+		<link type="text/css" rel="stylesheet" href="css/mobile.css" />
+		<link type="text/css" rel="stylesheet" href="css/jqm-icon-pack-2.1.2-fa.css" />
+
+		<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&libraries=places"></script> 
+		<script type="text/javascript" src="js/modernizr.min.js"></script>
+		<script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
+		<script type="text/javascript" src="js/jquery.mobile-1.2.0.min.js"></script>
+		<script type="text/javascript" src="js/demo.js"></script>	
+		<script type="text/javascript" src="js/controller.js"></script>
+		<script type="text/javascript" src="js/common.js"></script>
+
+		<script type="text/javascript" src="ui/jquery.ui.map.js"></script>
+		<script type="text/javascript" src="ui/jquery.ui.map.services.js"></script>
+		<script type="text/javascript" src="ui/jquery.ui.map.extensions.js"></script>
+		<script type="text/javascript" src="ui/jquery.ui.autocomplete.js"></script>
+
+    </head>
+
+	<body onload="controller.initialize();" onresize="controller.mapHandler.rescale()"> 
+
+		<div id="home" data-role="page">
+			<div id="splash" data-role="content">					
+				<div id="logo"><img src="images/kompass_design.png"/></div>
+				<div id="title">MathCityMap</div>
+			</div>
+			<script type="text/javascript">window.setTimeout('forward();', 3000);</script>
+		</div>
+
+		<div id="gps_map" data-role="page">
+			<div data-role="header" id="gps_map_header">
+				<h1>MathCityMap</h1>
+				<a id="trackerLink" onclick="controller.mapHandler.doTracking();" href="#gps_map" title="Lokalisiere" data-icon="screenshot" data-iconpos="notext" data-role="button" data-inline="true" data-transition="fade" data-mini="true" data-corners="true" data-shadow="true" data-iconshadow="true" data-theme="a">Lokalisiere</a>
+			</div>
+
+			<div data-role="content" id="map_canvas_2"></div>
+	
+			<div data-role="footer" id="gps_map_footer">
+				<div data-role="navbar">
+					<ul>
+						<li><a href="#bookmarks" title="Bookmarks" class="footerIconFix" data-icon="bookmark" data-rel="popup" data-theme="a" ></a></li>
+						<li><a href="#" title="Filter" class="footerIconFix" data-icon="filter" data-rel="popup" data-theme="c"></a></li> 
+						<li><a href="#" title="Routen" class="footerIconFix" data-icon="road" data-rel="popup" data-theme="c"></a></li>
+						<li><a href="#myMCM" title="MyMCM" class="footerIconFix" onclick="controller.navigationHandler.checkMyMCM();" data-icon="star" data-rel="popup" data-theme="a"></a></li>
+					</ul>
+				</div>
+			</div>
+			
+			<div id="bookmarks" data-role="popup" data-overlay-theme="a">
+				<div data-role="header" data-theme="d">
+					<h1 class="ui-title" role="heading" aria-level="1">Bookmarks</h1>
+				</div>
+
+				<div data-role="content" data-theme="c">
+					<a href="#gps_map?q=seoul" onclick="controller.mapHandler.setMapCenter(37.512696, 127.059673)" data-rel="back" data-role="button" data-theme="b" data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span">Seoul</a> 
+					<a href="#gps_map?p=frankfurt" onclick="controller.mapHandler.setMapCenter(50.117001, 8.650678)" data-rel="back" data-role="button" data-theme="b" data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span">Frankfurt</a>
+					<a href="#" data-rel="back" data-role="button" data-theme="c" data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span">Cancel</a>    
+				</div>
+			</div>
+			
+			<div id="myMCM" data-role="popup" data-overlay-theme="a">
+				<div data-role="header" data-theme="d">
+					<h1 class="ui-title" role="heading" aria-level="1">MyMCM</h1>
+				</div>
+
+				<div id="myMCM_content" data-role="content" data-theme="c"></div>
+			</div>
+		</div>
+		
+		<div id="new_map" data-role="page">
+			<div data-role="header">
+				<h1>Neuen Pin erstellen</h1>
+				<a href="#gps_map" title="BackToMap" data-icon="arrow-l" data-iconpos="notext" data-role="button" data-inline="true" data-transition="fade" data-mini="true" data-corners="true" data-shadow="true" data-iconshadow="true" data-theme="a">BackToMap</a>
+			</div>
+
+			<div data-role="content">	
+				<div class="ui-bar-c ui-corner-all ui-shadow" style="padding:1em;">
+					<div id="map_canvas_3" style="height:300px;"></div>
+					<p>
+						<label for="lat">Koordinate Lat</label>
+						<input id="new_map_latInput" disabled="disabled" type="text" value="" />
+					</p>
+					<p>
+						<label for="distance">Koordinate Lon</label>
+						<input id="new_map_lonInput" disabled="disabled" type="text" value="" />
+					</p>
+					<p>
+						<label for="titel">Titel</label>
+						<input id="new_map_titleInput" type="text" value="" />
+					</p>
+					<p>
+						<label for="text">Kurzbeschreibung</label>
+						<input id="new_map_textInput" type= "text" value="" />
+					</p>
+					<p>
+						<label for="distance">Erlaubte Distanz</label>
+						<input id="new_map_distanceInput" type="text" value="" />
+					</p>
+					<a id="newButton" href="#" onclick="controller.modelHandler.createPage()" data-role="button">Hinzufügen</a>
+				</div>
+			</div>
+		</div>
+		
+		<div id="contentPrototype" data-role="page">
+			<div data-role="header">
+				<h1 id="ueberschriftContent">##Ueberschrift##</h1>
+				<a href="#gps_map" title="BackToMap" data-icon="arrow-l" data-iconpos="notext" data-role="button" data-inline="true" data-transition="fade" data-mini="true" data-corners="true" data-shadow="true" data-iconshadow="true" data-theme="a">BackToMap</a>
+			</div>
+
+			<div data-role="content">	
+				<div class="ui-bar-c ui-corner-all ui-shadow" style="padding:1em;"><br />
+					<p id="descriptionContent">##Inhalt##</p>
+					<img src="images/noPic.png" alt="helpPic" width="100%" id="contentPic"/><br /><br />
+					<div id="questionButton"></div>
+					<br clear="all">
+				</div>
+			</div>
+		</div>	
+		
+		<div id="questionPrototype" data-role="page">
+			<div data-role="header">
+				<h1>Frage</h1>
+				<a id="backToContentLink" rel="external" href="#contentPrototype" title="Home" data-icon="arrow-l"  data-iconpos="notext" data-role="button" data-inline="true" data-transition="fade" data-mini="true" data-corners="true" data-shadow="true" data-iconshadow="true" data-theme="a">Home</a>
+				<a rel="external" href="#helpOverviewPrototype" title="Help" data-icon="question" data-iconpos="notext" data-role="button" data-inline="true" data-transition="fade" data-mini="true" data-corners="true" data-shadow="true" data-iconshadow="true" data-theme="a">Hilfe</a>
+			</div>
+
+			<div data-role="content">	
+				<div class="ui-bar-c ui-corner-all ui-shadow" style="padding:1em;"><br />
+					<p id="descriptionQuestion">##Inhalt##</p>
+					<img src="images/noPic.png" alt="helpPic" width="100%" id="questionPic"/><br />
+					<small>Autor:</small>
+					<small id="autorQuestion">##Autor##</small><br />
+					<small>Mail:</small> <a id="mailQuestion" href="">##Mail##</a></p>
+
+					<p>Zugelassene Hilfsmittel:</p>
+					<p id="toolsQuestion">##Hilfsmittel##</p>
+					<br clear="all">
+				</div>
+			</div>
+			
+			<div data-role="content" class="ui-bar-c ui-corner-all ui-shadow" style="margin:1em;">
+				<div id="solutionQuestionPrototype" style="padding:1em; display:none">
+					<h3 class="correct"></h3>
+					<a href="#gps_map" data-role="button">Zur&uuml;ck zur Map</a>
+				</div>
+				
+				<div id="questionPlaceHolder" style="padding:1em;">
+					<label id="questionPlaceHolderWrongAnswer"></label>
+					<label>Wie lautet die richtige Antwort? </label>
+					<div id="questionGenerator" data-role="fieldcontain">
+						<fieldset id="field" data-role="controlgroup" data-type="vertical" ></fieldset>
+						<input id="buttonSolution" type="button" data-theme="b"  value="OK" onClick=""/>
+					</div>
+				</div>
+			</div>
+		</div>
+									
+		<div id="helpOverviewPrototype" data-role="page">
+			<div data-role="header">
+				<h1>&Uuml;berblick der Hilfen</h1>
+				<a rel="external" href="#questionPrototype" data-role="button" data-icon="arrow-l" data-iconpos="notext" data-mini="true" data-inline="true" data-corners="true" data-shadow="true" data-iconshadow="true" data-theme="a" title="Zurück zur Aufgabe" data-transition="fade">Zurück zur Aufgabe</a>
+			</div>
+
+			<div data-role="content">	
+				<div class="ui-bar-c ui-corner-all ui-shadow" style="padding:1em;"><br />
+					<p>Hier kann zu den erreichbaren Hilfen navigiert werden.</p>
+					<br clear="all">
+					<div id="helpOverviewButtons"></div>
+				</div>
+			</div>
+		</div>	
+		
+		<div id="helpPrototype" data-role="page">
+			<div data-role="header">
+				<h1 id="helpHeader">##Ueberschrift##</h1>
+				<a rel="external" href="#helpOverviewPrototype" data-role="button" data-icon="arrow-l" data-iconpos="notext" data-mini="true" data-inline="true" data-corners="true" data-shadow="true" data-iconshadow="true" data-theme="a" title="Überblick der Hilfen" data-transition="fade">Überblick der Hilfen</a>
+			</div>
+
+			<div data-role="content">	
+				<div class="ui-bar-c ui-corner-all ui-shadow" style="padding:1em;"><br />
+					<p id="helpID">##Frage##</p>
+					<img src="images/noPic.png" width="100%" id="helpPic"/><br />
+					<br clear="all">
+					<a rel="external" href="#questionPrototype" data-role="button">Zur&uuml;ck zur Aufgabe</a>
+				</div>
+			</div>
+		</div>
+		
+		<div id="distancePreview" data-role="page">
+			<div data-role="header">
+				<a onclick="controller.contentHandler.resetIntervall();" href="#gps_map" title="BackToMap" data-icon="arrow-l" data-iconpos="notext" data-role="button" data-inline="true" data-transition="fade" data-mini="true" data-corners="true" data-shadow="true" data-iconshadow="true" data-theme="a">BackToMap</a>
+				<h1 id="distancePreviewHeader">##Ueberschrift##</h1>
+			</div>
+
+			<div data-role="content">	
+				<div class="ui-bar-c ui-corner-all ui-shadow" ><br />
+					<img src="images/kompass_design.png" width="100%" id="helpPic" style="padding:25px" /><br />
+					<p>Für das Bearbeiten dieser Aufgabe müssen Sie näher an den Aufgabenstandort heran.</p>
+					<p>Entfernung bis zum Aktivieren der Aufgabe:</p>
+					<h1 id="distanceToActivate">unbekannt</h1>
+					<br clear="all">
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
+
+
